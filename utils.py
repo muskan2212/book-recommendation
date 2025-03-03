@@ -7,24 +7,35 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 import pickle
 
-# Load the files correctly
+# Read the preprocessed dataframe.
 with open("book_models/processed_df.pkl", "rb") as file:
     book_df = pickle.load(file)
 
+#Read the saved similarty score file
 with open("book_models/similarity.pkl", "rb") as file:
     similarity = pickle.load(file)
 
-# Print loaded data
+# Lish of all books name form dataframe
 list_of_books = book_df['book_name'].tolist()
 
-
+# function for recommendation system
 def recommendation(book_name:str):
-    find_close_match = difflib.get_close_matches(book_name, list_of_books, n=10, cutoff=0.5)
+    # finding 4 close macth with threshold value 0.5 to the user entered book name 
+    find_close_match = difflib.get_close_matches(book_name, list_of_books, n=4, cutoff=0.5)
+
+    # select first one
     close_match = find_close_match[0]
+
+    # The function finds the index of this best-matching book in the book_df DataFrame.
     index_of_the_book = book_df[book_df.book_name == close_match].index.values[0]
+
+    # retrieve the similarity scores of the best-matching book with all other books.
     similarity_score = list(enumerate(similarity[index_of_the_book]))
+
+    # sort then in descending order
     sorted_similar_movies = sorted(similarity_score, key = lambda x:x[1], reverse = True) 
 
+    # list top 5 similar books
     top_sim = sorted_similar_movies[:6]
     res = []
     for i, book in enumerate(top_sim):
